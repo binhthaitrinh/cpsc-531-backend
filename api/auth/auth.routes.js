@@ -7,9 +7,9 @@ router.post("/login", async (req, res, next) => {
   console.log("asd");
   const { email, password } = req.body;
   try {
-    const users = await db("participant").where({ login_id: email }).select();
+    const users = await db("Participant").where({ Login_ID: email }).select();
     const user = users[0];
-    if (password === user.password) {
+    if (password === user.Password) {
       return res.json({ user });
     }
 

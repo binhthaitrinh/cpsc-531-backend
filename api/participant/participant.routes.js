@@ -11,7 +11,7 @@ router.get("/:id", async (req, res, next) => {
   const { id } = req.params;
 
   try {
-    const participant = await queries.get(parseInt(id, 10) || 1);
+    const participant = await queries.get(parseInt(id, 10));
 
     if (participant) {
       return res.json(participant);
@@ -47,6 +47,27 @@ router.patch("/:id/updateContact", async (req, res, next) => {
     const newParticipant = await queries.updateContact(
       parseInt(id, 10),
       parseInt(req.body.contactType, 10),
+      req.body.url
+    );
+
+    if (newParticipant) {
+      return res.json({ newParticipant });
+    }
+
+    return next();
+  } catch (err) {
+    console.log(err);
+    next();
+  }
+});
+
+router.patch("/:id/updateMe", async (req, res, next) => {
+  console.log("call");
+  const { id } = req.params;
+
+  try {
+    const newParticipant = await queries.updateMe(
+      parseInt(id, 10),
       req.body.url
     );
 

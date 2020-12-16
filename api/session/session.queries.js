@@ -4,115 +4,110 @@ const { get } = require("./session.routes");
 
 module.exports = {
   find() {
-    return db("session")
+    return db("Session")
       .join(
-        "participant",
-        "session.session_host_id",
+        "Participant",
+        "Session.Session_Host_ID",
         "=",
-        "participant.participant_id"
+        "Participant.Participant_ID"
       )
       .select(
-        "session.session_id",
-        "session.date",
-        "session.start_time",
-        "session.end_time",
-        "session.theme",
+        "Session.Session_ID",
+        "Session.Date",
+        "Session.Start_Time",
+        "Session.End_Time",
+        "Session.Theme",
 
         db.raw(
-          'CONCAT(participant.first_name, " ", participant.last_name) AS session_host'
+          'CONCAT(Participant.First_Name, " ", Participant.Last_Name) AS Session_host'
         ),
-        "participant.participant_id"
+        "Participant.Participant_ID"
       );
   },
   async get(id) {
-    return db("session")
-      .where({ session_id: id })
+    return db("Session")
+      .where({ Session_ID: id })
       .join(
-        "participant",
-        "session.session_host_id",
+        "Participant",
+        "Session.Session_Host_ID",
         "=",
-        "participant.participant_id"
+        "Participant.Participant_ID"
       )
       .first();
   },
 
   async getParticipant(id) {
-    return db("session_participant")
+    return db("Session_Participant")
       .join(
-        "participant",
-        "participant.participant_id",
+        "Participant",
+        "Participant.Participant_ID",
         "=",
-        "session_participant.participant_id"
+        "Session_Participant.Participant_ID"
       )
-      .join("role", "session_participant.role_id", "=", "role.role_id")
+      .join("Role", "Session_Participant.Role_ID", "=", "Role.Role_ID")
       .select(
-        "participant.participant_id",
-        "participant.first_name",
-        "participant.last_name",
-        "role.role_type"
+        "Participant.Participant_ID",
+        "Participant.First_Name",
+        "Participant.Last_Name",
+        "Role.Role_Type"
       )
-      .where({ session_id: id, "role.role_id": 3 });
+      .where({ Session_ID: id, "Role.Role_ID": 3 });
   },
 
   async getSpeaker(id) {
-    return db("participant")
+    return db("Participant")
       .join(
-        "session_participant",
-        "session_participant.participant_id",
+        "Session_Participant",
+        "Session_Participant.Participant_ID",
         "=",
-        "participant.participant_id"
+        "Participant.Participant_ID"
       )
-      .join(
-        "position",
-        "position.participant_id",
-        "=",
-        "participant.participant_id"
-      )
-      .join("topic", "topic.speaker_id", "=", "participant.participant_id")
+
+      .join("Topic", "Topic.Speaker_ID", "=", "Participant.Participant_ID")
       .select(
-        "participant.participant_id",
-        "participant.first_name",
-        "participant.last_name",
-        "position.position_title",
-        "position.company",
-        "position.start_time",
-        "topic.topic_name"
+        "Participant.Participant_ID",
+        "Participant.First_Name",
+        "Participant.Last_Name",
+        "Participant.Position_title",
+        "Participant.Company",
+        "Participant.Start_Time",
+        "Topic.Topic_Name"
       )
       .where({
-        "session_participant.role_id": 2,
-        "session_participant.session_id": id,
+        "Session_Participant.Role_ID": 2,
+        "Session_Participant.Session_ID": id,
       });
   },
 
   async join(id, userId) {
-    return db("session_participant").insert({
-      participant_id: userId,
-      session_id: id,
-      role_id: 3,
+    return db("Session_Participant").insert({
+      Participant_ID: userId,
+      Session_ID: id,
+      Role_ID: 3,
     });
   },
 
   async create({
-    date,
-    start_time,
-    end_time,
-    session_host_id,
-    theme,
-    meeting_link,
-    website_link,
-    recording_link,
-    table_of_content,
+    Date,
+    Start_Time,
+    End_Time,
+    Session_Host_ID,
+    Theme,
+    Meeting_Link,
+    Website_Link,
+    Recording_Link,
+    Table_Of_Content,
   }) {
-    return db("session").insert({
-      date,
-      start_time,
-      end_time,
-      session_host_id,
-      theme,
-      meeting_link,
-      website_link,
-      recording_link,
-      table_of_content,
+    return db("Session").insert({
+      Date,
+      Start_Time,
+      End_Time,
+      Session_Host_ID,
+      Theme,
+      Meeting_Link,
+      Website_Link,
+      Recording_Link,
+      Table_Of_Content,
     });
   },
 
@@ -123,18 +118,18 @@ module.exports = {
     description,
     attached_doc_link
   ) {
-    await db("session_participant").insert({
-      participant_id: speakerId,
-      session_id: id,
-      role_id: 2,
+    await db("Session_Participant").insert({
+      Participant_ID: speakerId,
+      Session_ID: id,
+      Role_ID: 2,
     });
 
     return await db("topic").insert({
-      speaker_id: speakerId,
-      session_id: id,
-      topic_name,
-      description,
-      attached_doc_link,
+      Speaker_ID: speakerId,
+      Session_ID: id,
+      Topic_Name: topic_name,
+      Description: description,
+      Attached_Doc_Link: attached_doc_link,
     });
   },
 };
